@@ -62,7 +62,12 @@ export default function GraficoVendas({ pedidos }: { pedidos: Pedido[] }) {
     scales: {
       y: {
         ticks: {
-          callback: (value: number) => `R$ ${value}`,
+          callback: function(value: string | number) {
+            if (typeof value === 'number') {
+              return `R$ ${value.toFixed(2)}`;
+            }
+            return `R$ ${value}`;
+          },
         },
         grid: {
           drawOnChartArea: false,
@@ -75,7 +80,6 @@ export default function GraficoVendas({ pedidos }: { pedidos: Pedido[] }) {
       },
     },
   };
-
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Vendas por Mês</h2>
