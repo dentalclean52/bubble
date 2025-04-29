@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Papa from 'papaparse';
+import { unparse } from 'papaparse';
 
 const ITENS_POR_PAGINA = 50;
 
@@ -43,7 +43,7 @@ export default function RelatorioTable({ pedidos }: { pedidos: Pedido[] }) {
   };
 
   const exportarCSV = () => {
-    const csv = (Papa as any).unparse(pedidosPaginados);
+    const csv = unparse(pedidosPaginados);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

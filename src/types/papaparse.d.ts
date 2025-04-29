@@ -1,4 +1,3 @@
 declare module 'papaparse' {
-    const Papa: unknown;
-    export default Papa;
+    export function unparse<T>(data: T[]): string;
   }
