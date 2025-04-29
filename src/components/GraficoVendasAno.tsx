@@ -51,7 +51,12 @@ export default function GraficoVendasAno({ pedidos }: { pedidos: Pedido[] }) {
     scales: {
       y: {
         ticks: {
-          callback: (value: number) => `R$ ${value}`,
+          callback: function(value: string | number) {
+            if (typeof value === 'number') {
+              return `R$ ${value.toFixed(2)}`;
+            }
+            return `R$ ${value}`;
+          },
         },
         grid: {
           drawOnChartArea: false,
