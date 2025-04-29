@@ -48,49 +48,45 @@ export default function Relatorio() {
     if (!sessionStorage.getItem('auth')) {
       router.push('/login');
     } else {
+      const fetchPedidos = async () => {
+        setLoading(true);
+
+        let query = supabase
+          .from('pedidos')
+          .select('*')
+          .eq('enviado_email', true)
+          .order('data_pedido', { ascending: false });
+
+        if (filtros.dataInicial) {
+          query = query.gte('data_pedido', filtros.dataInicial);
+        }
+        if (filtros.dataFinal) {
+          query = query.lte('data_pedido', filtros.dataFinal);
+        }
+        if (filtros.estado) {
+          query = query.eq('estado', filtros.estado);
+        }
+        if (filtros.observacao) {
+          query = query.ilike('observacao', `%${filtros.observacao}%`);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error('Erro ao buscar pedidos:', error);
+        } else if (data) {
+          const parsedData = data.map(pedido => ({
+            ...pedido,
+            itens: typeof pedido.itens === 'string' ? JSON.parse(pedido.itens) : pedido.itens
+          }));
+          setPedidos(parsedData as Pedido[]);
+        }
+        setLoading(false);
+      };
+
       fetchPedidos();
     }
-  }, []);
-
-  useEffect(() => {
-    fetchPedidos();
-  }, [filtros]);
-
-  const fetchPedidos = async () => {
-    setLoading(true);
-
-    let query = supabase
-      .from('pedidos')
-      .select('*')
-      .eq('enviado_email', true)
-      .order('data_pedido', { ascending: false });
-
-    if (filtros.dataInicial) {
-      query = query.gte('data_pedido', filtros.dataInicial);
-    }
-    if (filtros.dataFinal) {
-      query = query.lte('data_pedido', filtros.dataFinal);
-    }
-    if (filtros.estado) {
-      query = query.eq('estado', filtros.estado);
-    }
-    if (filtros.observacao) {
-      query = query.ilike('observacao', `%${filtros.observacao}%`);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Erro ao buscar pedidos:', error);
-    } else if (data) {
-      const parsedData = data.map(pedido => ({
-        ...pedido,
-        itens: typeof pedido.itens === 'string' ? JSON.parse(pedido.itens) : pedido.itens
-      }));
-      setPedidos(parsedData as Pedido[]);
-    }
-    setLoading(false);
-  };
+  }, [router, filtros]);
 
   const handleFilterChange = (filtrosAtualizados: { dataInicial: string; dataFinal: string; estado: string; observacao: string }) => {
     setFiltros(filtrosAtualizados);
@@ -104,7 +100,7 @@ export default function Relatorio() {
     <div className="p-8 bg-gray-100 min-h-screen">
       {/* Logo */}
       <div className="flex items-center mb-8">
-        <Image src="/logo-web.svg" alt="Logo" width={250} height={70} />
+        <Image src="/logo-web.svg" alt="Logo" width={250} height={50} />
       </div>
 
       {/* Título */}
@@ -149,7 +145,7 @@ export default function Relatorio() {
         </div>
       )}
 
-      {/* Tabela de pedidos */}
+      {/* Tabela */}
       {pedidos.length > 0 ? (
         <RelatorioTable pedidos={pedidos} />
       ) : (

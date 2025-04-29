@@ -1,4 +1,4 @@
 declare module 'papaparse' {
-    const Papa: any;
+    const Papa: unknown;
     export default Papa;
   }
