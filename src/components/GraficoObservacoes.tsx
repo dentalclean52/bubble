@@ -28,7 +28,7 @@ export default function GraficoObservacoes({ pedidos }: { pedidos: Pedido[] }) {
   });
 
   const data = {
-    labels: ['Revendedora', 'Outros'],
+    labels: ['Revenda', 'Ecommerce'],
     datasets: [
       {
         data: [revendedora, outros],
@@ -55,7 +55,7 @@ export default function GraficoObservacoes({ pedidos }: { pedidos: Pedido[] }) {
         borderWidth: 1,
       },
     },
-    maintainAspectRatio: false, // 👈 importante para forçar altura customizada
+    maintainAspectRatio: false,
   };
 
   return (

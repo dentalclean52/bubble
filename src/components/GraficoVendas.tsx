@@ -25,26 +25,35 @@ export default function GraficoVendas({ pedidos }: { pedidos: Pedido[] }) {
 
   pedidos.forEach((pedido) => {
     if (pedido.data_pedido) {
-      const mes = new Date(pedido.data_pedido).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
-      agrupadoPorMes[mes] = (agrupadoPorMes[mes] || 0) + (pedido.total_pedido || 0);
+      const data = new Date(pedido.data_pedido);
+      const chave = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`; // Ex: 2025-04
+      agrupadoPorMes[chave] = (agrupadoPorMes[chave] || 0) + (pedido.total_pedido || 0);
     }
   });
 
-  const mesesOrdenados = Object.keys(agrupadoPorMes).sort((a, b) => {
-    const [mesA, anoA] = a.split('/');
-    const [mesB, anoB] = b.split('/');
-    return new Date(`${anoA}-${mesA}-01`).getTime() - new Date(`${anoB}-${mesB}-01`).getTime();
+  // Ordena as chaves corretamente (por data real)
+  const chavesOrdenadas = Object.keys(agrupadoPorMes).sort();
+
+  // Converte para labels legíveis
+  const labels = chavesOrdenadas.map((chave) => {
+    const [ano, mes] = chave.split('-');
+    return new Date(`${ano}-${mes}-01`).toLocaleDateString('pt-BR', {
+      month: 'short',
+      year: 'numeric',
+    });
   });
 
+  const valores = chavesOrdenadas.map((chave) => agrupadoPorMes[chave]);
+
   const data = {
-    labels: mesesOrdenados,
+    labels,
     datasets: [
       {
         fill: true,
         label: 'Vendas (R$)',
-        data: mesesOrdenados.map((mes) => agrupadoPorMes[mes]),
-        borderColor: '#f87171', // Vermelho suave
-        backgroundColor: '#fecaca', // Fundo preenchido vermelho claro
+        data: valores,
+        borderColor: '#f87171',
+        backgroundColor: '#fecaca',
         tension: 0.4,
         pointRadius: 5,
         pointBackgroundColor: '#f87171',
@@ -62,7 +71,7 @@ export default function GraficoVendas({ pedidos }: { pedidos: Pedido[] }) {
     scales: {
       y: {
         ticks: {
-          callback: function(value: string | number) {
+          callback: function (value: string | number) {
             if (typeof value === 'number') {
               return `R$ ${value.toFixed(2)}`;
             }
@@ -80,6 +89,7 @@ export default function GraficoVendas({ pedidos }: { pedidos: Pedido[] }) {
       },
     },
   };
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Vendas por Mês</h2>
